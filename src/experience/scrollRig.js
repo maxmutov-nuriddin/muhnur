@@ -198,6 +198,28 @@ export function createScrollRig({ els, renderer, scene, camera, book, flip, layo
     },
     { signal },
   );
+  // Kitobdan tashqariga bosilsa kitob yopiladi va sahifa boshiga (hero) qaytadi.
+  // Bosish ham kitobdan tashqarida boshlangan bo'lishi kerak: varaqni sudrab
+  // tashqarida qo'yib yuborish kitobni yopmasin.
+  const KEEP_OPEN = "#holder, .ctl, .lb, #topbar";
+  let downOutside = false;
+  addEventListener(
+    "pointerdown",
+    (e) => {
+      downOutside = !mode3d && cam.classList.contains("on") && !e.target.closest(KEEP_OPEN);
+    },
+    { signal },
+  );
+  addEventListener(
+    "click",
+    (e) => {
+      if (!downOutside || mode3d || e.target.closest(KEEP_OPEN)) return;
+      downOutside = false;
+      pending = null;
+      scrollTo({ top: intro.offsetTop, behavior: reduce ? "auto" : "smooth" });
+    },
+    { signal },
+  );
   installScrollFlip({
     pf,
     mobile,
