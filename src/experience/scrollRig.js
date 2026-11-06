@@ -1,12 +1,16 @@
 import * as THREE from "three";
 import { reportError } from "../lib/reportError.js";
 import { B, H, T, W } from "./book3d.js";
+import { installScrollFlip } from "./scrollFlip.js";
 
 const FOV_DEG = 35;
 // Scroll progress (0..1 through #intro) where the camera lands on the book, and where it rests.
 const T_END = 0.48,
   P_REST = 0.6;
 const SNAP_DELAY_MS = 170;
+// Must match flippingTime in flipbook.js.
+const FLIP_MS = 1000,
+  FLIP_MS_REDUCED = 300;
 
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
@@ -194,6 +198,14 @@ export function createScrollRig({ els, renderer, scene, camera, book, flip, layo
     },
     { signal },
   );
+  installScrollFlip({
+    pf,
+    mobile,
+    first: mobile ? 1 : 0,
+    flipMs: reduce ? FLIP_MS_REDUCED : FLIP_MS,
+    isOpen: () => !mode3d && cam.classList.contains("on"),
+    signal,
+  });
   signal.addEventListener("abort", () => {
     clearTimeout(snapT);
     cancelAnimationFrame(animId);
