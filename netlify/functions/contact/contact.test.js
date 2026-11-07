@@ -101,4 +101,43 @@ describe("contact function", () => {
 
     expect(res.status).toBe(502);
   });
+
+  test("sends to every chat id in a comma-separated list", async () => {
+    env.TELEGRAM_CHAT_ID = " 111 , 222,";
+
+    const res = await handler(post(validBody));
+
+    expect(res.status).toBe(200);
+    const chatIds = fetchMock.mock.calls.map(([, init]) => JSON.parse(init.body).chat_id);
+    expect(chatIds).toEqual(["111", "222"]);
+  });
+
+  test("succeeds and logs when only some recipients receive the message", async () => {
+    env.TELEGRAM_CHAT_ID = "111,222";
+    fetchMock.mockRejectedValueOnce(new Error("network down"));
+
+    const res = await handler(post(validBody));
+
+    expect(res.status).toBe(200);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(console.error).toHaveBeenCalled();
+  });
+
+  test("returns 502 when every recipient fails", async () => {
+    env.TELEGRAM_CHAT_ID = "111,222";
+    fetchMock.mockRejectedValue(new Error("network down"));
+
+    const res = await handler(post(validBody));
+
+    expect(res.status).toBe(502);
+  });
+
+  test("returns 500 when the chat id list has no ids", async () => {
+    env.TELEGRAM_CHAT_ID = " , ";
+
+    const res = await handler(post(validBody));
+
+    expect(res.status).toBe(500);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
 });

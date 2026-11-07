@@ -24,6 +24,29 @@ async function sendToTelegram(token, chatId, text) {
   }
 }
 
+/** @param {string | undefined} raw comma-separated chat ids */
+const parseChatIds = (raw = "") =>
+  raw.split(",").map((id) => id.trim()).filter(Boolean);
+
+/**
+ * Sends to every chat in parallel. Succeeds if at least one delivery lands,
+ * so one blocked recipient does not lose the lead for the others.
+ */
+async function broadcast(token, chatIds, text) {
+  const results = await Promise.allSettled(
+    chatIds.map((chatId) => sendToTelegram(token, chatId, text)),
+  );
+  const failures = results.flatMap((r, i) =>
+    r.status === "rejected" ? [{ chatId: chatIds[i], reason: r.reason }] : [],
+  );
+  failures.forEach(({ chatId, reason }) =>
+    console.error(`contact: Telegram delivery to ${chatId} failed`, reason),
+  );
+  if (failures.length === chatIds.length) {
+    throw new Error("Telegram delivery failed for every recipient");
+  }
+}
+
 export default async (req) => {
   let body;
   try {
@@ -38,14 +61,14 @@ export default async (req) => {
   if (!result.ok) return reply(400, result.error);
 
   const token = Netlify.env.get("TELEGRAM_BOT_TOKEN");
-  const chatId = Netlify.env.get("TELEGRAM_CHAT_ID");
-  if (!token || !chatId) {
+  const chatIds = parseChatIds(Netlify.env.get("TELEGRAM_CHAT_ID"));
+  if (!token || chatIds.length === 0) {
     console.error("contact: TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID is not set");
     return reply(500, SEND_FAILED_ERROR);
   }
 
   try {
-    await sendToTelegram(token, chatId, formatTelegramMessage(result.data));
+    await broadcast(token, chatIds, formatTelegramMessage(result.data));
     return reply(200);
   } catch (error) {
     console.error("contact: Telegram delivery failed", error);

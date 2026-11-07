@@ -1,4 +1,4 @@
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 import netlify from "@netlify/vite-plugin";
 
@@ -17,7 +17,23 @@ const dropCspInDev = {
   },
 };
 
-export default defineConfig({
+// @netlify/vite-plugin reads function env only from process.env and the linked
+// Netlify site, never from .env; Vite loads only VITE_* vars. Bridge the
+// server-only keys so `npm run dev` sees them. Real env vars still win.
+const SERVER_ENV_PREFIX = "TELEGRAM_";
+function loadServerEnv(mode) {
+  const fileEnv = loadEnv(mode, process.cwd(), SERVER_ENV_PREFIX);
+  for (const [key, value] of Object.entries(fileEnv)) {
+    if (process.env[key] === undefined) process.env[key] = value;
+  }
+}
+
+export default defineConfig(({ mode }) => {
+  loadServerEnv(mode);
+  return config;
+});
+
+const config = {
   // netlify() runs netlify/functions/* and loads env vars inside `npm run dev`.
   // No edge functions in this project; skipping their Deno emulator keeps dev stable.
   plugins: [dropCspInDev, react(), netlify({ edgeFunctions: { enabled: false } })],
@@ -35,4 +51,4 @@ export default defineConfig({
     include: ["**/*.test.js"],
     exclude: ["node_modules/**", "dist/**"],
   },
-});
+};
