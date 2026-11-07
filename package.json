@@ -9,7 +9,10 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "works": "node scripts/build-works.mjs"
+    "works": "node scripts/build-works.mjs",
+    "seo": "node scripts/build-seo-pages.mjs",
+    "predev": "npm run seo",
+    "prebuild": "npm run seo"
   },
   "dependencies": {
     "page-flip": "2.0.7",

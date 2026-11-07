@@ -17,6 +17,19 @@ const dropCspInDev = {
   },
 };
 
+// Netlify serves public/xizmatlar/<slug>/index.html for "/xizmatlar/<slug>/";
+// Vite dev would fall back to the SPA instead, so mirror Netlify locally.
+const serveStaticPageDirs = {
+  name: "serve-static-page-dirs",
+  apply: "serve",
+  configureServer(server) {
+    server.middlewares.use((req, _res, next) => {
+      if (/^\/xizmatlar\/[a-z0-9-]+\/$/.test(req.url ?? "")) req.url += "index.html";
+      next();
+    });
+  },
+};
+
 // @netlify/vite-plugin reads function env only from process.env and the linked
 // Netlify site, never from .env; Vite loads only VITE_* vars. Bridge the
 // server-only keys so `npm run dev` sees them. Real env vars still win.
@@ -36,7 +49,7 @@ export default defineConfig(({ mode }) => {
 const config = {
   // netlify() runs netlify/functions/* and loads env vars inside `npm run dev`.
   // No edge functions in this project; skipping their Deno emulator keeps dev stable.
-  plugins: [dropCspInDev, react(), netlify({ edgeFunctions: { enabled: false } })],
+  plugins: [dropCspInDev, serveStaticPageDirs, react(), netlify({ edgeFunctions: { enabled: false } })],
   build: {
     target: "es2020",
     rollupOptions: {

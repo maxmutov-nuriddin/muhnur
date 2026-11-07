@@ -8,6 +8,9 @@ import MiniFoot from "./components/MiniFoot.jsx";
 import Controls from "./components/Controls.jsx";
 import Book from "./components/book/Book.jsx";
 import Lightbox from "./components/Lightbox.jsx";
+import { PAGE } from "./content/catalog.js";
+
+const CONTACT_HASH = "#contact";
 
 /**
  * The page renders once. After mount, scroll/flip effects are driven
@@ -23,7 +26,11 @@ export default function App() {
     initExperience(introRef.current, controller.signal)
       .then((experience) => {
         if (controller.signal.aborted) experience?.destroy();
-        else experienceRef.current = experience;
+        else {
+          experienceRef.current = experience;
+          // Service pages link to /#contact: open the catalog on the contact page.
+          if (window.location.hash === CONTACT_HASH) experience?.goTo(PAGE.contact);
+        }
       })
       .catch(reportError);
     return () => {
