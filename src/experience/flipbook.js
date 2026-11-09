@@ -8,7 +8,7 @@ export function computeLayout(vw, vh) {
   const mobile = vw < MOBILE_BREAKPOINT;
   let pw, ph;
   if (mobile) {
-    pw = Math.min(vw * 0.86, (vh * 0.7) / A_RATIO);
+    pw = Math.min(vw * 0.88, (vh * 0.72) / A_RATIO);
     ph = pw * A_RATIO;
   } else {
     ph = Math.min(vh * 0.8, ((vw * 0.86) / 2) * A_RATIO);
@@ -40,9 +40,69 @@ export function createFlipbook({ bookEl, countEl, prevBtn, nextBtn }, { mobile, 
     flippingTime: reduce ? 300 : 1000,
     mobileScrollSupport: true,
     showPageCorners: true,
+    disableFlipByClick: true,
   });
   pf.loadFromHTML(pages);
   const total = pf.getPageCount();
+
+  // Matnli sahifalarda (.page-body) vertikal skrol paytida sahifa o'girilib ketishini oldini olish
+  bookEl.querySelectorAll(".page-body").forEach((body) => {
+    let startX = 0;
+    let startY = 0;
+    let isVertical = false;
+    let isHorizontal = false;
+
+    body.addEventListener(
+      "touchstart",
+      (e) => {
+        if (e.touches.length !== 1) return;
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+        isVertical = false;
+        isHorizontal = false;
+        e.stopPropagation();
+      },
+      { passive: true }
+    );
+
+    body.addEventListener(
+      "touchmove",
+      (e) => {
+        if (e.touches.length !== 1) return;
+        const currentX = e.touches[0].clientX;
+        const currentY = e.touches[0].clientY;
+        const diffX = currentX - startX;
+        const diffY = currentY - startY;
+
+        if (!isVertical && !isHorizontal) {
+          if (Math.abs(diffY) > 6 && Math.abs(diffY) >= Math.abs(diffX)) {
+            isVertical = true;
+          } else if (Math.abs(diffX) > 10 && Math.abs(diffX) > Math.abs(diffY)) {
+            isHorizontal = true;
+          }
+        }
+
+        e.stopPropagation();
+      },
+      { passive: true }
+    );
+
+    body.addEventListener(
+      "touchend",
+      (e) => {
+        if (isHorizontal) {
+          const endX = e.changedTouches[0].clientX;
+          const diffX = endX - startX;
+          if (diffX < -35) pf.flipNext();
+          else if (diffX > 35) pf.flipPrev();
+        }
+        e.stopPropagation();
+      },
+      { passive: true }
+    );
+
+    body.addEventListener("mousedown", (e) => e.stopPropagation());
+  });
 
   // Ko'rinib turgan sahifalar `.is-open` oladi: buklangan varaqlar shu payt ochiladi.
   function markOpen(i) {

@@ -97,27 +97,46 @@
 .pin {
   position: absolute;
   inset: 0;
-  padding: calc(var(--pw) * 0.1) calc(var(--pw) * 0.1)
-    calc(var(--pw) * 0.12);
+  padding: calc(var(--pw) * 0.08) calc(var(--pw) * 0.08)
+    calc(var(--pw) * 0.04);
   display: flex;
   flex-direction: column;
 }
-.folio {
-  position: absolute;
-  bottom: calc(var(--pw) * 0.05);
-  left: 0;
-  right: 0;
-  text-align: center;
-  font: 500 var(--fs-s) var(--body);
-  color: var(--p-ink-2);
-}
 .runhead {
+  flex-shrink: 0;
   font: 500 var(--fs-s) var(--body);
   color: var(--p-ink-2);
-  margin: 0 0 calc(var(--pw) * 0.06);
+  margin: 0 0 calc(var(--pw) * 0.045);
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+.page-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(18, 16, 25, 0.2) transparent;
+}
+.page-body::-webkit-scrollbar {
+  width: 3px;
+}
+.page-body::-webkit-scrollbar-thumb {
+  background: rgba(18, 16, 25, 0.2);
+  border-radius: 3px;
+}
+.folio {
+  flex-shrink: 0;
+  margin-top: auto;
+  padding-top: calc(var(--pw) * 0.02);
+  text-align: center;
+  font: 500 var(--fs-s) var(--body);
+  color: var(--p-ink-2);
 }
 .runhead span:first-child {
   display: inline-flex;

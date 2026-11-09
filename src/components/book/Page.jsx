@@ -10,7 +10,7 @@ export function TextPage({ section, aside = "", folio, children }) {
           <span>{section}</span>
           <span>{aside}</span>
         </p>
-        {children}
+        <div className="page-body">{children}</div>
         <span className="folio">{folio}</span>
       </div>
     </div>

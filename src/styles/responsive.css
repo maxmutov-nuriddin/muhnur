@@ -45,6 +45,99 @@
   footer small {
     text-align: left;
   }
+
+  /* Kitob sahifalari mobil o'lchamlari va ixchamlashtirish */
+  .page {
+    --fs: max(9.5px, calc(var(--pw) * 0.025));
+    --fs-s: max(8.5px, calc(var(--pw) * 0.02));
+    --fs-h: calc(var(--pw) * 0.056);
+  }
+  .pin {
+    padding: calc(var(--pw) * 0.055) calc(var(--pw) * 0.06) calc(var(--pw) * 0.035);
+  }
+  .runhead {
+    margin: 0 0 calc(var(--pw) * 0.025);
+  }
+  .page h2 {
+    margin: 0 0 0.35em;
+  }
+  .folio {
+    padding-top: calc(var(--pw) * 0.015);
+  }
+
+  /* Mundarija (TOC) mobil ko'rinishi */
+  .toc--dense {
+    column-gap: 0.8em;
+  }
+  .toc--dense li {
+    padding: 0.18em 0;
+    gap: 0.35em;
+  }
+  .toc--dense li b {
+    font-size: calc(var(--fs) * 0.92);
+    line-height: 1.12;
+  }
+  .toc--dense li small {
+    margin-top: 0.05em;
+    font-size: calc(var(--fs-s) * 0.88);
+    line-height: 1.1;
+  }
+  .toc--dense li span {
+    font-size: calc(var(--fs-s) * 0.95);
+  }
+  .toc--dense li.sm {
+    margin-top: 0.15em;
+  }
+
+  /* Loyihalar sahifasi */
+  .meta {
+    gap: 0.25em 1em;
+    margin: 0 0 0.6em;
+    padding: 0.45em 0;
+  }
+  .dl {
+    margin: 0 0 0.6em;
+    gap: 0.35em;
+  }
+  .dl li {
+    padding: 0.3em 0.65em;
+  }
+  .page p {
+    margin: 0 0 0.65em;
+    line-height: 1.5;
+  }
+  .pal {
+    margin-top: auto;
+  }
+
+  /* Xizmatlar sahifasi */
+  .svc li {
+    padding: 0.4em 0;
+  }
+
+  /* Tajriba / Dasturlar */
+  .tools-list li {
+    padding: 0.55em 0;
+  }
+
+  /* Bog'lanish formasi */
+  form {
+    gap: 0.45em;
+  }
+  label {
+    gap: 0.25em;
+  }
+  input,
+  textarea {
+    padding: 0.5em 0.7em;
+  }
+  textarea {
+    height: 3.6em;
+  }
+  .send {
+    padding: 0.75em;
+    margin-top: 0.15em;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   .scrollcue i::after {
